@@ -9,6 +9,7 @@ export default function Counter() {
   const { address, isConnected } = useAccount();
   const [customValue, setCustomValue] = useState<string>('1');
   const [debugInfo, setDebugInfo] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const [forceRefresh, setForceRefresh] = useState(0);
 
   const { data: count, isLoading: isReading, error: readError, refetch } = useReadContract({
@@ -38,24 +39,42 @@ export default function Counter() {
     }
   }, [isConfirmed, refetch, count]);
 
-  const handleIncrement = () => {
-    writeContract({
-      ...CONTRACT_CONFIG,
-      functionName: 'inc',
-    });
+  const handleIncrement = async () => {
+    try {
+      setError('');
+      setDebugInfo('Calling writeContract for increment...');
+      const result = await writeContract({
+        ...CONTRACT_CONFIG,
+        functionName: 'inc',
+      });
+      setDebugInfo(`writeContract called successfully! Result: ${result}`);
+    } catch (err) {
+      console.error('Error in handleIncrement:', err);
+      setError(`Error: ${err instanceof Error ? err.message : String(err)}`);
+      setDebugInfo('writeContract failed with error above.');
+    }
   };
 
-  const handleIncrementBy = () => {
-    const value = BigInt(customValue);
-    if (value <= 0n) {
-      alert('Increment value must be positive');
-      return;
+  const handleIncrementBy = async () => {
+    try {
+      setError('');
+      const value = BigInt(customValue);
+      if (value <= 0n) {
+        alert('Increment value must be positive');
+        return;
+      }
+      setDebugInfo(`Calling writeContract for incrementBy with value: ${value}...`);
+      const result = await writeContract({
+        ...CONTRACT_CONFIG,
+        functionName: 'incBy',
+        args: [value],
+      });
+      setDebugInfo(`writeContract called successfully! Result: ${result}`);
+    } catch (err) {
+      console.error('Error in handleIncrementBy:', err);
+      setError(`Error: ${err instanceof Error ? err.message : String(err)}`);
+      setDebugInfo('writeContract failed with error above.');
     }
-    writeContract({
-      ...CONTRACT_CONFIG,
-      functionName: 'incBy',
-      args: [value],
-    });
   };
 
   return (
@@ -68,6 +87,12 @@ export default function Counter() {
         <div className="mb-6">
           <ConnectButton />
         </div>
+
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 rounded-lg">
+            <p className="text-xs text-red-600">{error}</p>
+          </div>
+        )}
 
         {isConnected && (
           <div className="space-y-6">
