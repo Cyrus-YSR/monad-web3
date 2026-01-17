@@ -363,6 +363,8 @@ export const ACCOUNT_NFT_ABI = [
   }
 ] as const;
 
+export const AccountNFTABI = ACCOUNT_NFT_ABI;
+
 export const IMAGE_SHARE_ABI = [
   {
     "inputs": [
@@ -442,6 +444,67 @@ export const IMAGE_SHARE_ABI = [
             "internalType": "uint256",
             "name": "timestamp",
             "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "networkId",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ImageShare.Image[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "networkId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getAllImages",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "imageHash",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "text",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "likes",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "networkId",
+            "type": "uint256"
           }
         ],
         "internalType": "struct ImageShare.Image[]",
@@ -493,6 +556,11 @@ export const IMAGE_SHARE_ABI = [
             "internalType": "uint256",
             "name": "timestamp",
             "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "networkId",
+            "type": "uint256"
           }
         ],
         "internalType": "struct ImageShare.Image",
@@ -505,6 +573,25 @@ export const IMAGE_SHARE_ABI = [
   },
   {
     "inputs": [],
+    "name": "getTotalImages",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "networkId",
+        "type": "uint256"
+      }
+    ],
     "name": "getTotalImages",
     "outputs": [
       {
@@ -556,6 +643,72 @@ export const IMAGE_SHARE_ABI = [
           {
             "internalType": "uint256",
             "name": "timestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "networkId",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ImageShare.Image[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "networkId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getUserImages",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "imageHash",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "text",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "likes",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "networkId",
             "type": "uint256"
           }
         ],
@@ -630,6 +783,11 @@ export const IMAGE_SHARE_ABI = [
         "internalType": "uint256",
         "name": "timestamp",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "networkId",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -659,11 +817,40 @@ export const IMAGE_SHARE_ABI = [
         "internalType": "string",
         "name": "text",
         "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "networkId",
+        "type": "uint256"
       }
     ],
     "name": "shareImage",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "networkImages",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

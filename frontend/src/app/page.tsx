@@ -6,7 +6,7 @@ import { IMAGE_SHARE_CONFIG } from "./lib/imageShareConfig";
 import ImageCard from "./components/ImageCard";
 
 export default function Home() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chain } = useAccount();
 
   interface ImageData {
     id: bigint;
@@ -15,15 +15,21 @@ export default function Home() {
     text: string;
     likes: bigint;
     timestamp: bigint;
+    networkId: bigint; // 添加networkId字段
   }
 
   const [images, setImages] = useState<ImageData[]>([]);
   const [likingImages, setLikingImages] = useState<Set<number>>(new Set());
   const [error, setError] = useState<string>("");
 
+  // 使用当前网络的ID作为networkId
+  const currentNetworkId = chain?.id || 10143; // 默认使用Monad测试网ID
+
+  // 获取特定网络的所有图片
   const { data: allImages, isLoading: isReadingImages, refetch: refetchImages } = useReadContract({
     ...IMAGE_SHARE_CONFIG,
     functionName: "getAllImages",
+    args: [BigInt(currentNetworkId)], // 传递当前网络ID
     query: {
       enabled: true,
       refetchInterval: 5000,
@@ -55,7 +61,7 @@ export default function Home() {
     } catch (err) {
       console.error("Error liking image:", err);
       setError(
-        `Error liking image: ${err instanceof Error ? err.message : String(err)}`,
+        `Error liking image: ${err instanceof Error ? err.message : String(err)}`
       );
     } finally {
       setLikingImages((prev) => {

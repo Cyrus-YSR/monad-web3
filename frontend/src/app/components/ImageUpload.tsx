@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { ACCOUNT_NFT_CONFIG, IMAGE_SHARE_CONFIG } from '../lib/imageShareConfig';
 import { uploadToPinata } from '../lib/pinataConfig';
 
 export default function ImageUpload() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chain } = useAccount();
   const [image, setImage] = useState<string>('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [text, setText] = useState<string>('');
@@ -15,16 +15,41 @@ export default function ImageUpload() {
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [hasAccount, setHasAccount] = useState<boolean>(false);
+  const [isCheckingAccount, setIsCheckingAccount] = useState(true);
 
-  // 检查用户是否已有账号
-  const { data: accountStatus } = useReadContract({
-    ...ACCOUNT_NFT_CONFIG,
-    functionName: 'hasAccount',
-    args: [address],
-    query: {
-      enabled: isConnected && !!address,
-    },
-  });
+  const currentNetworkId = chain?.id || 10143;
+
+  const checkAccount = useCallback(async () => {
+    if (!address || !isConnected) {
+      setHasAccount(false);
+      setIsCheckingAccount(false);
+      return;
+    }
+
+    try {
+      const balanceResponse = await fetch('/api/check-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address }),
+      });
+
+      if (balanceResponse.ok) {
+        const data = await balanceResponse.json();
+        setHasAccount(data.hasAccount);
+      } else {
+        setHasAccount(false);
+      }
+    } catch (err) {
+      console.error('Error checking account:', err);
+      setHasAccount(false);
+    } finally {
+      setIsCheckingAccount(false);
+    }
+  }, [address, isConnected]);
+
+  useEffect(() => {
+    checkAccount();
+  }, [checkAccount]);
 
   const { data: hash, writeContract, isPending: isWriting } = useWriteContract();
 
@@ -33,21 +58,15 @@ export default function ImageUpload() {
   });
 
   useEffect(() => {
-    if (accountStatus !== undefined) {
-      setHasAccount(accountStatus);
-    }
-  }, [accountStatus]);
-
-  useEffect(() => {
     if (isConfirmed) {
       setSuccess('Image shared successfully!');
       setIsUploading(false);
-      // 重置表单
       setImage('');
       setImageFile(null);
       setText('');
+      checkAccount();
     }
-  }, [isConfirmed]);
+  }, [isConfirmed, checkAccount]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -83,15 +102,13 @@ export default function ImageUpload() {
       setIsUploading(true);
       setIsPinataUploading(true);
 
-      // 上传图片到Pinata IPFS
       const imageHash = await uploadToPinata(imageFile);
       setIsPinataUploading(false);
       
-      // 将真实的IPFS CID存储到区块链上
       await writeContract({
         ...IMAGE_SHARE_CONFIG,
         functionName: 'shareImage',
-        args: [imageHash, text],
+        args: [imageHash, text, BigInt(currentNetworkId)],
       });
     } catch (err) {
       console.error('Error sharing image:', err);
@@ -110,6 +127,15 @@ export default function ImageUpload() {
     );
   }
 
+  if (isCheckingAccount) {
+    return (
+      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">Checking account status...</p>
+      </div>
+    );
+  }
+
   if (!hasAccount) {
     return (
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center">
@@ -118,6 +144,12 @@ export default function ImageUpload() {
         <a href="/mint" className="text-blue-600 hover:underline mt-4 inline-block">
           Go to Mint Page
         </a>
+        <button
+          onClick={checkAccount}
+          className="block mt-4 text-sm text-gray-500 hover:text-gray-700 mx-auto"
+        >
+          Refresh status
+        </button>
       </div>
     );
   }

@@ -11,6 +11,7 @@ contract ImageShare {
         string text;
         uint256 likes;
         uint256 timestamp;
+        uint256 networkId; // 添加网络ID字段
     }
 
     AccountNFT public accountNFT;
@@ -18,9 +19,10 @@ contract ImageShare {
     mapping(uint256 => Image) public images;
     mapping(uint256 => mapping(address => bool)) public hasLiked;
     mapping(address => uint256[]) public userImages;
+    mapping(uint256 => uint256[]) public networkImages; // 按网络ID分组图片
     uint256[] public allImageIds;
 
-    event ImageShared(uint256 indexed id, address indexed owner, string imageHash, string text);
+    event ImageShared(uint256 indexed id, address indexed owner, string imageHash, string text, uint256 networkId);
     event ImageLiked(uint256 indexed id, address indexed user);
 
     constructor(address accountNFTAddress) {
@@ -28,7 +30,7 @@ contract ImageShare {
         _imageIdCounter = 0;
     }
 
-    function shareImage(string memory imageHash, string memory text) public {
+    function shareImage(string memory imageHash, string memory text, uint256 networkId) public {
         require(accountNFT.hasAccount(msg.sender), "Must have an account NFT");
 
         uint256 imageId = _imageIdCounter;
@@ -41,11 +43,13 @@ contract ImageShare {
         newImage.text = text;
         newImage.likes = 0;
         newImage.timestamp = block.timestamp;
+        newImage.networkId = networkId;
 
         userImages[msg.sender].push(imageId);
         allImageIds.push(imageId);
+        networkImages[networkId].push(imageId); // 将图片添加到对应网络分组
 
-        emit ImageShared(imageId, msg.sender, imageHash, text);
+        emit ImageShared(imageId, msg.sender, imageHash, text, networkId);
     }
 
     function likeImage(uint256 imageId) public {
@@ -64,6 +68,20 @@ contract ImageShare {
         return images[imageId];
     }
 
+    // 获取特定网络的所有图片
+    function getAllImages(uint256 networkId) public view returns (Image[] memory) {
+        uint256[] memory networkImageIds = networkImages[networkId];
+        uint256 totalImages = networkImageIds.length;
+        Image[] memory result = new Image[](totalImages);
+
+        for (uint256 i = 0; i < totalImages; i++) {
+            result[i] = images[networkImageIds[i]];
+        }
+
+        return result;
+    }
+
+    // 获取所有网络的图片（兼容旧版本）
     function getAllImages() public view returns (Image[] memory) {
         uint256 totalImages = allImageIds.length;
         Image[] memory result = new Image[](totalImages);
@@ -86,7 +104,36 @@ contract ImageShare {
         return result;
     }
 
+    // 获取特定用户在特定网络的图片
+    function getUserImages(address user, uint256 networkId) public view returns (Image[] memory) {
+        uint256 userImageCount = userImages[user].length;
+        uint256[] memory filteredImageIds = new uint256[](userImageCount);
+        uint256 filteredCount = 0;
+
+        // 过滤出该用户在指定网络的图片
+        for (uint256 i = 0; i < userImageCount; i++) {
+            uint256 imageId = userImages[user][i];
+            if (images[imageId].networkId == networkId) {
+                filteredImageIds[filteredCount] = imageId;
+                filteredCount++;
+            }
+        }
+
+        // 创建结果数组
+        Image[] memory result = new Image[](filteredCount);
+        for (uint256 i = 0; i < filteredCount; i++) {
+            result[i] = images[filteredImageIds[i]];
+        }
+
+        return result;
+    }
+
     function getTotalImages() public view returns (uint256) {
         return allImageIds.length;
+    }
+
+    // 获取特定网络的图片总数
+    function getTotalImages(uint256 networkId) public view returns (uint256) {
+        return networkImages[networkId].length;
     }
 }

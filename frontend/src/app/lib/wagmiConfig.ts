@@ -1,10 +1,9 @@
 import { http, createConfig } from 'wagmi';
-import { hardhatLocal, monadTestnet } from './chains';
+import { monadTestnet } from './chains';
 
 export const config = createConfig({
-  chains: [hardhatLocal, monadTestnet],
+  chains: [monadTestnet],
   transports: {
-    [hardhatLocal.id]: http(),
     [monadTestnet.id]: http(),
   },
   ssr: true,
