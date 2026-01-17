@@ -6,7 +6,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { CONTRACT_CONFIG } from '../lib/config';
 
 export default function Counter() {
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
   const [customValue, setCustomValue] = useState<string>('1');
   const [debugInfo, setDebugInfo] = useState<string>('');
   const [error, setError] = useState<string>('');

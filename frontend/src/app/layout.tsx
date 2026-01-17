@@ -3,6 +3,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "./components/Providers";
 
+import Navbar from "./components/Navbar";
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -15,8 +17,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Counter DApp",
-  description: "Web3 Counter DApp on Monad Testnet",
+  title: "ImageShare DApp",
+  description: "Web3 Image Sharing DApp",
 };
 
 export default function RootLayout({
@@ -27,10 +29,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 min-h-screen flex flex-col items-center justify-center gap-8`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 min-h-screen`}
       >
         <Providers>
-          {children}
+          <Navbar />
+          <main className="min-h-[calc(100vh-64px)]">{children}</main>
         </Providers>
       </body>
     </html>
