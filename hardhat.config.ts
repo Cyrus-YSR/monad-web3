@@ -37,7 +37,7 @@ export default defineConfig({
     },
     monadTestnet: {
       type: "http", 
-      url: "https://testnet-rpc.monad.xyz/", 
+      url: "https://testnet-rpc.monad.xyz", 
       chainId: 10143, // Monad测试网固定链ID
       accounts: [configVariable("MONAD_PRIVATE_KEY")], // 你的钱包私钥
     },
