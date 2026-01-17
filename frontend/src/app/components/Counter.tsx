@@ -11,7 +11,7 @@ export default function Counter() {
   const [debugInfo, setDebugInfo] = useState<string>('');
   const [forceRefresh, setForceRefresh] = useState(0);
 
-  const { data: count, isLoading: isReading, refetch } = useReadContract({
+  const { data: count, isLoading: isReading, error: readError, refetch } = useReadContract({
     ...CONTRACT_CONFIG,
     functionName: 'x',
     query: {
@@ -76,6 +76,11 @@ export default function Counter() {
               <div className="text-6xl font-bold text-blue-600">
                 {isReading ? '...' : (count?.toString() || '0')}
               </div>
+              {readError && (
+                <p className="text-xs text-red-500 mt-2">
+                  Error: {readError.message.slice(0, 50)}...
+                </p>
+              )}
             </div>
 
             <div className="space-y-4">

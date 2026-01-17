@@ -41,5 +41,8 @@ export default defineConfig({
       chainId: 10143, // Monad测试网固定链ID
       accounts: [configVariable("MONAD_PRIVATE_KEY")], // 你的钱包私钥
     },
+    localhost: {
+      url: "http://127.0.0.1:8545",
+    },
   },
 });
