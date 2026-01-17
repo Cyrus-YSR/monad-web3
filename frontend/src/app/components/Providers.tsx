@@ -8,7 +8,7 @@ import { hardhatLocal } from '../lib/chains';
 
 const config = getDefaultConfig({
   appName: 'Counter DApp',
-  projectId: 'YOUR_PROJECT_ID',
+  projectId: '41d078509902631f2a013b3cc230a647',
   chains: [hardhatLocal],
   ssr: true,
 });
