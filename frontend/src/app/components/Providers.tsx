@@ -10,6 +10,7 @@ const config = getDefaultConfig({
   appName: "ImageShare DApp",
   projectId: "41d078509902631f2a013b3cc230a647",
   chains: [hardhatLocal, monadTestnet],
+
   ssr: true,
 });
 
